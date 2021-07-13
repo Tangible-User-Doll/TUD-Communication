@@ -8,11 +8,7 @@
 const char* ssid     = "XXXXXXXXXXXXXXXXXXXXX";
 const char* password = "XXXXXXXXXXXXXXXXXXXXX";
 
-// the ThinkSpeak Key and Channel to read
-const char* apiKeyRead = "XXXXXXXXXXXXXXXXXXXXX";
-const char* apiChannelFeed = "XXXXXXXXXXXXXXXXXXXXX";
-
-// the ThinksSpeak Key and Channel to write
+// the ThinksSpeak key and channel to write to your own channel
 const char* apiKeyWrite = "XXXXXXXXXXXXXXXXXXXXX";
 
 Adafruit_MPU6050 mpu;
@@ -51,6 +47,7 @@ void loop() {
   char urlWrite[100];
   char urlRead[100];
 
+  // getArmPosition() returns the current arm position based on the gyro values
   sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field4=%d", apiKeyWrite, getArmPosition());
   writeRGBValues(urlWrite);
 

@@ -8,10 +8,19 @@
 const char* ssid     = "XXXXXXXXXXXXXXXXXXXXX";
 const char* password = "XXXXXXXXXXXXXXXXXXXXX";
 
-// the ThinkSpeak Key and Channel to read
-const char* apiKeyRead = "XXXXXXXXXXXXXXXXXXXXX";
-const char* apiChannelFeed = "XXXXXXXXXXXXXXXXXXXXX";
+// the ThinkSpeak key and channel to read your own chanel
+const char* apiKeyReadOwn = "XXXXXXXXXXXXXXXXXXXXX";
+const char* apiChannelFeedOwn = "XXXXXXXXXXXXXXXXXXXXX";
 
+// the ThinkSpeak key and channel to read from the second member
+const char* apiKeyReadSecond = "XXXXXXXXXXXXXXXXXXXXX";
+const char* apiChannelFeedSecond = "XXXXXXXXXXXXXXXXXXXXX";
+
+// the ThinkSpeak key and channel to read from the third member
+const char* apiKeyReadThird = "XXXXXXXXXXXXXXXXXXXXX";
+const char* apiChannelFeedThird = "XXXXXXXXXXXXXXXXXXXXX";
+
+// just for one LED, the others depend on the hardware connection
 int red_light_pin= 15;
 int green_light_pin = 14;
 int blue_light_pin = 13;
@@ -43,8 +52,9 @@ void setup() {
  
 void loop() {
   char urlRead[100];
-
-  sprintf(urlRead, "https://api.thingspeak.com/channels/%s/feeds.json?api_key=%s&results=1", apiChannelFeed, apiKeyRead);
+  
+  // create an url string which is sent to thinkspeak
+  sprintf(urlRead, "https://api.thingspeak.com/channels/%s/feeds.json?api_key=%s&results=1", apiChannelFeedOwn, apiKeyReadOwn);
   readRGBValues(urlRead);
 
   delay(1000);
@@ -58,11 +68,16 @@ void decodeJson(String response){
   Serial.println("pos");
   Serial.println(pos);
   int posInt = atoi(pos);
+
+  // for example: 0 === arms are above
   if(posInt == 0){
     setColor(255, 255, 255);
   }
   if(posInt == 1){
     setColor(255, 0, 0);
+  }
+  if(posInt == 2){
+    setColor(0, 255, 0);
   }
   Serial.println("\n");
   Serial.println("-------------------");  
