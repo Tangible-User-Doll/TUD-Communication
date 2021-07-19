@@ -177,16 +177,22 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 1){
     switch (pos) {
     case 0:
-      setColorOwn(100, 100, 75);
+      setColorOwn(100, 100, 75);        // white (neutral)
       break;
     case 1:
-      setColorOwn(0, 255, 0);
+      setColorOwn(0, 255, 0);           // green (joy, happiness)
       break;
     case 2:
-      setColorOwn(255, 75, 0);
+      setColorOwn(255, 75, 0);          // yellow (stress)
       break;
     case 3:
-      setColorOwn(0, 200, 200);
+      setColorOwn(0, 200, 200);         // cyan (concentration)
+      break;
+    case 4:
+      setColorOwn(0, 0, 255);           // blue (sadness)
+      break;
+    case 5:
+      setColorOwn(255, 0, 0);           // red (anger)
       break;
     }
   }
@@ -194,16 +200,22 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 2){
     switch (pos) {
     case 0:
-      setColorUserTwo(100, 100, 75);
+      setColorUserTwo(100, 100, 75);    // white (neutral)
       break;
     case 1:
-      setColorUserTwo(0, 255, 0);
+      setColorUserTwo(0, 255, 0);       // green (joy, happiness)
       break;
     case 2:
-      setColorUserTwo(255, 75, 0);
+      setColorUserTwo(255, 75, 0);      // yellow (stress)
       break;
     case 3:
-      setColorUserTwo(0, 200, 200);
+      setColorUserTwo(0, 200, 200);     // cyan (concentration)
+      break;
+    case 4:
+      setColorUserTwo(0, 0, 255);       // blue (sadness)
+      break;
+    case 5:
+      setColorUserTwo(255, 0, 0);       // red (anger)
       break;
     }
   }
@@ -211,16 +223,22 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 3){
     switch (pos) {
     case 0:
-      setColorUserThree(100, 100, 75);
+      setColorUserThree(100, 100, 75);  // white (neutral)
       break;
     case 1:
-      setColorUserThree(0, 255, 0);
+      setColorUserThree(0, 255, 0);     // green (joy, happiness)
       break;
     case 2:
-      setColorUserThree(255, 75, 0);
+      setColorUserThree(255, 75, 0);    // yellow (stress)
       break;
     case 3:
-      setColorUserThree(0, 200, 200);
+      setColorUserThree(0, 200, 200);   // cyan (concentration)
+      break;
+    case 4:
+      setColorUserThree(0, 0, 255);     // blue (sadness)
+      break;
+    case 5:
+      setColorUserThree(255, 0, 0);     // red (anger)
       break;
     }
   }
