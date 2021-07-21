@@ -5,8 +5,8 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
-const char* ssid     = "XXXXX";
-const char* password = "XXXXX";
+const char* ssid     = "xxx";
+const char* password = "xxx";
 
 // AD0 to ground
 Adafruit_MPU6050 mpu_right;
@@ -20,15 +20,15 @@ WiFiClient client;
 
 void setup() {
   Wire.begin();
-  
+
   Serial.begin(115200);
-  WiFi.begin(ssid, password); 
- 
+  WiFi.begin(ssid, password);
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
-  
+
   //client.setInsecure();
 
   // Try to initialize first mpu!
@@ -43,7 +43,7 @@ void setup() {
   mpu_right.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu_right.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu_right.setFilterBandwidth(MPU6050_BAND_5_HZ);
-  
+
 
   // Try to initialize first mpu!
   if (!mpu_left.begin(0x69)) {
@@ -59,31 +59,32 @@ void setup() {
   mpu_left.setFilterBandwidth(MPU6050_BAND_5_HZ);
 
 }
- 
+
 void loop() {
   char urlWrite[100];
   char urlRead[100];
 
   // getArmPosition() returns the current arm position based on the gyro values
-  
-  sprintf(urlWrite, "http://192.168.0.174:8081/changeColor?p1=%d", getEmotion());
+
+  sprintf(urlWrite, "https://4f6fe6a1be7d.ngrok.io/changeColor?p1=%d", getEmotion());
   writeRGBValues(urlWrite);
 
   //delay(1000);
 }
 
-void writeRGBValues(String url){
+void writeRGBValues(String url) {
 
-  if(WiFi.status()== WL_CONNECTED){
-  
-    http.begin(client,url);    
-    http.GET();
+  if (WiFi.status() == WL_CONNECTED) {
+    client.connect("https://4f6fe6a1be7d.ngrok.io", 80);
+    http.begin(client, url);
+    int httpResponseCode = http.GET();
+    Serial.println(httpResponseCode);
     Serial.println(url);
     http.end();
- 
-   }else{
-      Serial.print("Error on sending PUT Request: ");
-   }
+
+  } else {
+    Serial.print("Error on sending PUT Request: ");
+  }
 }
 
 
@@ -91,28 +92,28 @@ int getEmotion() {
   String rightPos = getMPUAccelerationRight();
   String leftPos = getMPUAccelerationLeft();
   int armPosition = 0;
-  
-  if(rightPos == "oben" || leftPos == "oben") {
+
+  if (rightPos == "oben" || leftPos == "oben") {
     Serial.print("Freude");
     armPosition = 1;
   }
-  if(rightPos == "gesicht" || leftPos == "gesicht") {
+  if (rightPos == "gesicht" || leftPos == "gesicht") {
     Serial.print("Stress");
     armPosition = 2;
   }
-  if((rightPos == "kopf" || leftPos == "kopf")) {
+  if ((rightPos == "kopf" || leftPos == "kopf")) {
     Serial.print("Konzentration");
     armPosition = 3;
   }
-  if(rightPos == "unten" || leftPos == "unten") {
+  if (rightPos == "unten" || leftPos == "unten") {
     Serial.print("Trauer");
     armPosition = 4;
   }
-  if(rightPos == "vorne" || leftPos == "vorne") {
+  if (rightPos == "vorne" || leftPos == "vorne") {
     Serial.print("Wut");
     armPosition = 5;
   }
-  
+
   return armPosition;
   Serial.println("");
   //delay(1000);
@@ -126,41 +127,41 @@ String getMPUAccelerationRight() {
   int z = a.acceleration.z;
   String armRight;
 
-  if(x < 11 && x > 7) {
-    if(y < -1 && y > -7) {
-      if(z < 6 && z > 0) {
+  if (x < 11 && x > 7) {
+    if (y < -1 && y > -7) {
+      if (z < 6 && z > 0) {
         armRight = "oben";
       }
     }
   }
 
-  if(x < 8 && x > 4) {
-    if(y < -6 && y > -10) {
-      if(z < 5 && z > 1) {
+  if (x < 8 && x > 4) {
+    if (y < -6 && y > -10) {
+      if (z < 5 && z > 1) {
         armRight = "gesicht";
       }
     }
   }
 
-  if(x < 10 && x > 7) {
-    if(y < 3 && y > -2) {
-      if(z < 5 && z > 1) {
+  if (x < 10 && x > 7) {
+    if (y < 3 && y > -2) {
+      if (z < 5 && z > 1) {
         armRight = "kopf";
       }
     }
   }
 
-  if(x < -7 && x > -11) {
-    if(y < 1 && y > -2) {
-      if(z < -2 && z > -6) {
+  if (x < -7 && x > -11) {
+    if (y < 1 && y > -2) {
+      if (z < -2 && z > -6) {
         armRight = "unten";
       }
     }
   }
 
-  if(x < 2 && x > -2) {
-    if(y < -9 && y > -11) {
-      if(z < 0 && z > -3) {
+  if (x < 2 && x > -2) {
+    if (y < -9 && y > -11) {
+      if (z < 0 && z > -3) {
         armRight = "vorne";
       }
     }
@@ -175,42 +176,42 @@ String getMPUAccelerationLeft() {
   int y = a.acceleration.y;
   int z = a.acceleration.z;
   String armLeft;
-  
-  if(x < 11 && x > 7) {
-    if(y < 5 && y > 0) {
-      if(z < 5 && z > -2) {
+
+  if (x < 11 && x > 7) {
+    if (y < 5 && y > 0) {
+      if (z < 5 && z > -2) {
         armLeft = "oben";
       }
     }
   }
 
-  if(x < 10 && x > 6) {
-    if(y < 8 && y > 4) {
-      if(z < 5 && z > -1) {
+  if (x < 10 && x > 6) {
+    if (y < 8 && y > 4) {
+      if (z < 5 && z > -1) {
         armLeft = "gesicht";
       }
     }
   }
 
-  if(x < 10 && x > 6) {
-    if(y < -1 && y > -5) {
-      if(z < 8 && z > 3) {
+  if (x < 10 && x > 6) {
+    if (y < -1 && y > -5) {
+      if (z < 8 && z > 3) {
         armLeft = "kopf";
       }
     }
   }
 
-  if(x < -7 && x > -11) {
-    if(y < 4 && y > 1) {
-      if(z < 0 && z > -4) {
+  if (x < -7 && x > -11) {
+    if (y < 4 && y > 1) {
+      if (z < 0 && z > -4) {
         armLeft = "unten";
       }
     }
   }
 
-  if(x < 2 && x > -2) {
-    if(y < 11 && y > 9) {
-      if(z < 2 && z > 0) {
+  if (x < 2 && x > -2) {
+    if (y < 11 && y > 9) {
+      if (z < 2 && z > 0) {
         armLeft = "vorne";
       }
     }

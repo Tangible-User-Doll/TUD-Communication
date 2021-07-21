@@ -19,8 +19,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 unsigned long timePressLimit;
 
-const char* ssid     = "XXXXX";
-const char* password = "XXXXX";
+const char* ssid     = "xxxx";
+const char* password = "xxxx";
 
 // just for one LED, the others depend on the hardware connection
 int red_light_pin_1 = 1 ;
@@ -93,7 +93,7 @@ void setup() {
 void loop() {
   // create an url string which is sent to thinkspeak
   char urlRead[100];
-  sprintf(urlRead, "http://192.168.0.174:8081/color");
+  sprintf(urlRead, "https://4f6fe6a1be7d.ngrok.io/color");
   readRGBValues(urlRead);
   touchSensor();
 }
@@ -194,8 +194,8 @@ void switchUserColorsByPosition(int pos, int user){
 void readRGBValues(String url){
 
  if(WiFi.status()== WL_CONNECTED){
-  
-     // Send request
+  client.connect("https://4f6fe6a1be7d.ngrok.io", 80);
+  // Send request
   http.begin(client,url);
   http.GET();
   
@@ -235,7 +235,7 @@ void touchSensor(){
 
   if(touch_lastState == LOW && touch_currentState == HIGH){
     char urlWrite[100];
-    sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field4=%d", apiKeyWrite, 1);
+    sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field4=%d", 1);
     sendTextValue(urlWrite);
 
     timePressLimit = millis() + 30000;    
@@ -243,7 +243,7 @@ void touchSensor(){
 
   if(timePressLimit > 0 && millis() < timePressLimit){
     char urlWrite[100];
-    sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field4=%d", apiKeyWrite, 0);
+    sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field4=%d", 0);
     sendTextValue(urlWrite);
   }
 
