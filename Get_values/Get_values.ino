@@ -19,15 +19,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 unsigned long timePressLimit;
 
-const char* ssid     = "xxxxxx";
-const char* password = "xxxxxx";
-
-// the ThinkSpeak key and channel to read your own chanel
-const char* apiKeyReadOwn = "xxxxxx";
-const char* apiChannelFeedOwn = "xxxxxx";
-
-// the key to send data to ThingSpeak
-const char* apiKeyWrite = "xxxxxx";
+const char* ssid     = "XXXXX";
+const char* password = "XXXXX";
 
 // just for one LED, the others depend on the hardware connection
 int red_light_pin_1 = 1 ;
@@ -47,7 +40,7 @@ int posInt_2;
 int posInt_3;
 
 HTTPClient http;
-WiFiClientSecure client;
+WiFiClient client;
 
 const char* pos_user_1; 
 const char* pos_user_2; 
@@ -68,7 +61,7 @@ void setup() {
     Serial.println("Connecting to WiFi..");
   }
   
-  client.setInsecure();
+  //client.setInsecure();
 
   Serial.println("WiFi is connected...");
 
@@ -100,7 +93,7 @@ void setup() {
 void loop() {
   // create an url string which is sent to thinkspeak
   char urlRead[100];
-  sprintf(urlRead, "https://api.thingspeak.com/channels/%s/feeds.json?api_key=%s&results=1", apiChannelFeedOwn, apiKeyReadOwn);
+  sprintf(urlRead, "http://192.168.0.174:8081/color");
   readRGBValues(urlRead);
   touchSensor();
 }
@@ -109,27 +102,10 @@ void decodeJson(String response){
   
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, response);
-  
-  if(doc["feeds"][0]["field1"]){
-    pos_user_1 = doc["feeds"][0]["field1"];
-    posInt_1 = atoi(pos_user_1);
-  }
-  else{
-  }
 
-  if(doc["feeds"][0]["field2"]){
-    pos_user_2 = doc["feeds"][0]["field2"];
-    posInt_2 = atoi(pos_user_2);
-  }
-  else{
-  }
-
-  if(doc["feeds"][0]["field3"]){
-    pos_user_3 = doc["feeds"][0]["field3"];
-    posInt_3 = atoi(pos_user_3);
-  }
-  else{
-  }
+  posInt_1 = doc["p1"];
+  posInt_2 = doc["p2"];
+  posInt_3 = doc["p3"];
 
   delay(500);
   setColorOwn(0, 0, 0);
@@ -219,23 +195,15 @@ void readRGBValues(String url){
 
  if(WiFi.status()== WL_CONNECTED){
   
-   http.begin(client, url);
-   http.addHeader("Content-Type", "application/json");            
- 
-   int httpResponseCode = http.GET();   
-
-   if(httpResponseCode>0){
-     String response = http.getString();   
-
-     char responseText[50];
-     sprintf(responseText, "Response Code: %d\n", httpResponseCode);
-
-     
-     decodeJson(response);
- 
-   }else{
-   }
-   http.end();
+     // Send request
+  http.begin(client,url);
+  http.GET();
+  
+  // Print the response
+  decodeJson(http.getString());
+  
+  // Disconnect
+  http.end();
  
 }else{
  }
@@ -284,7 +252,7 @@ void touchSensor(){
 
 void sendTextValue(String url){
 
- if(WiFi.status()== WL_CONNECTED){
+ /*if(WiFi.status()== WL_CONNECTED){
   
    http.begin(client, url);
    http.addHeader("Content-Type", "application/json");            
@@ -302,5 +270,5 @@ void sendTextValue(String url){
    http.end();
  
  }else{
- }
+ }*/
 }
