@@ -8,7 +8,7 @@
 const char* ssid     = "xxxxxxx";
 const char* password = "xxxxxxx";
 
-// the ThinksSpeak key and channel to write to your own channel
+// the ThingsSpeak key and channel to write to your own channel
 const char* apiKeyWrite = "xxxxxxx";
 
 // AD0 to ground
@@ -83,7 +83,7 @@ void writeRGBValues(String url){
    int httpResponseCode = http.GET();   
 
    if(httpResponseCode > 0){
-     Serial.println("Write data to ThinkSpeak...");
+     Serial.println("Write data to ThingSpeak...");
      String response = http.getString();   
 
      char responseText[50];
@@ -141,6 +141,7 @@ String getMPUAccelerationRight() {
   int x = a.acceleration.x;
   int y = a.acceleration.y;
   int z = a.acceleration.z;
+  String armRight;
 
   if(x < 11 && x > 7) {
     if(y < -1 && y > -7) {
@@ -181,7 +182,7 @@ String getMPUAccelerationRight() {
       }
     }
   }
-
+  return armRight;
   delay(1000);
 }
 
@@ -191,6 +192,7 @@ String getMPUAccelerationLeft() {
   int x = a.acceleration.x;
   int y = a.acceleration.y;
   int z = a.acceleration.z;
+  String armLeft;
   
   if(x < 11 && x > 7) {
     if(y < 5 && y > 0) {
@@ -231,6 +233,6 @@ String getMPUAccelerationLeft() {
       }
     }
   }
-
+  return armLeft;
   delay(1000);
 }
