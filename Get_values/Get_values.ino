@@ -19,23 +19,15 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 unsigned long timePressLimit;
 
-const char* ssid     = "xxxxxxx";
-const char* password = "xxxxxxx";
+const char* ssid     = "xxxxxx";
+const char* password = "xxxxxx";
 
 // the ThinkSpeak key and channel to read your own chanel
-const char* apiKeyReadOwn = "xxxxxxx";
-const char* apiChannelFeedOwn = "xxxxxxx";
-
-// the ThinkSpeak key and channel to read from the second member
-const char* apiKeyReadSecond = "xxxxxxx";
-const char* apiChannelFeedSecond = "xxxxxxx";
-
-// the ThinkSpeak key and channel to read from the third member
-const char* apiKeyReadThird = "xxxxxxx";
-const char* apiChannelFeedThird = "xxxxxxx";
+const char* apiKeyReadOwn = "xxxxxx";
+const char* apiChannelFeedOwn = "xxxxxx";
 
 // the key to send data to ThingSpeak
-const char* apiKeyWrite = "xxxxxxx";
+const char* apiKeyWrite = "xxxxxx";
 
 // just for one LED, the others depend on the hardware connection
 int red_light_pin_1 = 1 ;
@@ -49,6 +41,10 @@ int blue_light_pin_2 = 15;
 int red_light_pin_3 = 2;
 int green_light_pin_3 = 0;
 int blue_light_pin_3 = 14;
+
+int posInt_1;
+int posInt_2;
+int posInt_3;
 
 HTTPClient http;
 WiFiClientSecure client;
@@ -77,7 +73,6 @@ void setup() {
   Serial.println("WiFi is connected...");
 
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
       
@@ -96,8 +91,6 @@ void setup() {
   // activate touch sensor
   pinMode(sensor_pin, INPUT);
 
-  Serial.println("Pin Mode is done...");
-
   setColorOwn(0,0,0);
   setColorUserTwo(0,0,0);
   setColorUserThree(0,0,0);
@@ -105,8 +98,6 @@ void setup() {
 }
  
 void loop() {
-  Serial.println("Loop is starting...");
-  
   // create an url string which is sent to thinkspeak
   char urlRead[100];
   sprintf(urlRead, "https://api.thingspeak.com/channels/%s/feeds.json?api_key=%s&results=1", apiChannelFeedOwn, apiKeyReadOwn);
@@ -118,47 +109,27 @@ void decodeJson(String response){
   
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, response);
-
-  Serial.print("Read from JSON Doc...\n");
+  
   if(doc["feeds"][0]["field1"]){
-    pos_user_1 = doc["feeds"][0]["field1"]; 
-    Serial.println(pos_user_1);
+    pos_user_1 = doc["feeds"][0]["field1"];
+    posInt_1 = atoi(pos_user_1);
   }
   else{
-    Serial.println(pos_user_1);
   }
 
   if(doc["feeds"][0]["field2"]){
-    pos_user_2 = doc["feeds"][0]["field2"]; 
-    Serial.println(pos_user_2);
+    pos_user_2 = doc["feeds"][0]["field2"];
+    posInt_2 = atoi(pos_user_2);
   }
   else{
-    Serial.println(pos_user_2);
   }
 
   if(doc["feeds"][0]["field3"]){
-    pos_user_3 = doc["feeds"][0]["field3"]; 
-    Serial.println(pos_user_3);
+    pos_user_3 = doc["feeds"][0]["field3"];
+    posInt_3 = atoi(pos_user_3);
   }
   else{
-    Serial.println(pos_user_3);
   }
-
-  int posInt_1 = atoi(pos_user_1);
-  int posInt_2 = atoi(pos_user_2);
-  int posInt_3 = atoi(pos_user_3);
-  
-  Serial.println("pos 1: ");
-  Serial.println(posInt_1);
-  Serial.println("\n");
-
-  Serial.println("pos 2: ");
-  Serial.println(posInt_2);
-  Serial.println("\n");
-
-  Serial.println("pos 3: ");
-  Serial.println(posInt_3);
-  Serial.println("\n");
 
   delay(500);
   setColorOwn(0, 0, 0);
@@ -247,32 +218,26 @@ void switchUserColorsByPosition(int pos, int user){
 void readRGBValues(String url){
 
  if(WiFi.status()== WL_CONNECTED){
-
-   Serial.println("Try to get data from ThinkSpeak...");
+  
    http.begin(client, url);
    http.addHeader("Content-Type", "application/json");            
  
    int httpResponseCode = http.GET();   
 
    if(httpResponseCode>0){
-     Serial.println("Read data from ThinkSpeak...");
      String response = http.getString();   
 
      char responseText[50];
      sprintf(responseText, "Response Code: %d\n", httpResponseCode);
-     Serial.print(responseText);
 
      
      decodeJson(response);
  
    }else{
-      Serial.print("Error on sending PUT Request: ");
-      Serial.println(httpResponseCode);
    }
    http.end();
  
 }else{
-    Serial.println("Error in WiFi connection");
  }
 }
 
@@ -327,20 +292,15 @@ void sendTextValue(String url){
    int httpResponseCode = http.GET();   
 
    if(httpResponseCode > 0){
-     Serial.println("Write data to ThinkSpeak...");
      String response = http.getString();   
 
      char responseText[50];
      sprintf(responseText, "Response Code: %d\n", httpResponseCode);
-     Serial.print(responseText);
  
    }else{
-      Serial.print("Error on sending PUT Request: ");
-      Serial.println(httpResponseCode);
    }
    http.end();
  
  }else{
-    Serial.println("Error in WiFi connection");
  }
 }
