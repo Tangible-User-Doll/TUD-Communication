@@ -19,8 +19,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 unsigned long timePressLimit;
 
-const char* ssid     = "xxxx";
-const char* password = "xxxx";
+const char* ssid     = "xxx";
+const char* password = "xxx";
 
 // just for one LED, the others depend on the hardware connection
 int red_light_pin_1 = 1 ;
@@ -96,6 +96,8 @@ void loop() {
   sprintf(urlRead, "https://4f6fe6a1be7d.ngrok.io/color");
   readRGBValues(urlRead);
   touchSensor();
+
+  delay(1000);
 }
 
 void decodeJson(String response){
@@ -197,7 +199,9 @@ void readRGBValues(String url){
   client.connect("https://4f6fe6a1be7d.ngrok.io", 80);
   // Send request
   http.begin(client,url);
-  http.GET();
+  int httpResponseCode = http.GET();
+  Serial.println(httpResponseCode);
+  Serial.println(url);
   
   // Print the response
   decodeJson(http.getString());
