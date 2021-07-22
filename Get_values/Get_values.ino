@@ -19,8 +19,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 unsigned long timePressLimit;
 
-const char* ssid     = "xxx";
-const char* password = "xxx";
+const char* ssid     = "xxxxxx";
+const char* password = "xxxxxx";
 
 
 // just for one LED, the others depend on the hardware connection
@@ -39,6 +39,8 @@ int blue_light_pin_3 = 14;
 int posInt_1;
 int posInt_2;
 int posInt_3;
+
+int lastPos;
 
 bool user2Responding = false;
 bool user3Responding = false;
@@ -91,13 +93,14 @@ void setup() {
   setColorOwn(0,0,0);
   setColorUserTwo(0,0,0);
   setColorUserThree(0,0,0);
-  display.display();
+
+  lastPos = 0;
 }
  
 void loop() {
   // create an url string which is sent to thinkspeak
   char urlRead[100];
-  sprintf(urlRead, "https://bc985424d5973b.localhost.run/color");
+  sprintf(urlRead, "xxxxxx/color");
   readRGBValues(urlRead);
   touchSensor();
 
@@ -114,7 +117,11 @@ void decodeJson(String response){
   posInt_3 = doc["p3"];
 
   user2Responding = doc["m1"];
-  user3Responding = doc["m3"];
+  user3Responding = doc["m2"];
+
+  if(posInt_3 != 0) {
+    lastPos = posInt_3;
+  }
   
   delay(500);
   switchUserColorsByPosition(posInt_1, 1);
@@ -132,7 +139,7 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 1){
     switch (pos) {
     case 0:
-      setColorOwn(100, 100, 75);        // white (neutral)
+      //setColorOwn(100, 100, 75);        // white (neutral)
       break;
     case 1:
       setColorOwn(0, 255, 0);           // green (joy, happiness)
@@ -155,7 +162,7 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 2){
     switch (pos) {
     case 0:
-     setColorUserTwo(100, 100, 75);    // white (neutral)
+     //setColorUserTwo(100, 100, 75);    // white (neutral)
       break;
     case 1:
       setColorUserTwo(0, 255, 0);       // green (joy, happiness)
@@ -178,7 +185,7 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 3){
     switch (pos) {
     case 0:
-      setColorUserThree(100, 100, 75);  // white (neutral)
+      //setColorUserThree(100, 100, 75);  // white (neutral)
       break;
     case 1:
       setColorUserThree(0, 255, 0);     // green (joy, happiness)
@@ -202,7 +209,7 @@ void switchUserColorsByPosition(int pos, int user){
 void readRGBValues(String url){
 
  if(WiFi.status()== WL_CONNECTED){
-  client.connect("https://bc985424d5973b.localhost.run", 80);
+  client.connect("xxxxxx", 80);
   // Send request
   http.begin(client,url);
   int httpResponseCode = http.GET();
@@ -245,13 +252,13 @@ void touchSensor(){
 
   if(touch_lastState == LOW && touch_currentState == HIGH){
     char urlWrite[100];
-    sprintf(urlWrite, "https://bc985424d5973b.localhost.run/changeColor?m2=%d", 1);
+    sprintf(urlWrite, "xxxxxx/changeColor?m3=%d", 1);
     sendTextValue(urlWrite);
 
-    showMessage("Ich: " ,getResponseMessage(posInt_1));
+    showMessage("Ich: " , "Reaktion gesendet!");
     
     char urlReset[100];
-    sprintf(urlReset, "https://bc985424d5973b.localhost.run/changeColor?m2=%d", 0);
+    sprintf(urlReset, "xxxxxx/changeColor?m3=%d", 0);
     sendTextValue(urlReset);
   }
 
@@ -265,14 +272,14 @@ void checkForResponses() {
 
 
   if(user2Responding) {
-    sender = "Lara: ";
-    message = getResponseMessage(posInt_1);
+    sender = "Michel: ";
+    message = getResponseMessage(lastPos);
     showMessage(sender, message);
     
   }
   if(user3Responding) {
-    sender = "Michel: ";
-    message = getResponseMessage(posInt_1);
+    sender = "Alissa: ";
+    message = getResponseMessage(lastPos);
     showMessage(sender, message);
   }
   
@@ -334,7 +341,7 @@ String getResponseMessage(int state) {
 void sendTextValue(String url){
 
  if(WiFi.status()== WL_CONNECTED){
-  client.connect("https://bc985424d5973b.localhost.run", 80);
+  client.connect("xxxxxx", 80);
   // Send request
   http.begin(client,url);
   int httpResponseCode = http.GET();
