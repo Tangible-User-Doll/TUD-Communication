@@ -5,11 +5,8 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
-const char* ssid     = "xxxxxxx";
-const char* password = "xxxxxxx";
-
-// the ThingsSpeak key and channel to write to your own channel
-const char* apiKeyWrite = "xxxxxxx";
+const char* ssid     = "xxxxxx";
+const char* password = "xxxxxx";
 
 // AD0 to ground
 Adafruit_MPU6050 mpu_right;
@@ -19,7 +16,7 @@ Adafruit_MPU6050 mpu_left;
 
 
 HTTPClient http;
-WiFiClientSecure client;
+WiFiClient client;
 
 void setup() {
   Wire.begin();
@@ -32,7 +29,7 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   
-  client.setInsecure();
+  //client.setInsecure();
 
   // Try to initialize first mpu!
   if (!mpu_right.begin(0x68)) {
@@ -67,42 +64,27 @@ void loop() {
   char urlRead[100];
 
   // getArmPosition() returns the current arm position based on the gyro values
-  sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field1=%d", apiKeyWrite, getEmotion());
+  
+  sprintf(urlWrite, "xxxxxx/changeColor?p3=%d", getEmotion());
   writeRGBValues(urlWrite);
 
-  delay(1000);
+  //delay(1000);
 }
 
 void writeRGBValues(String url){
 
- if(WiFi.status()== WL_CONNECTED){
-  
-   http.begin(client, url);
-   http.addHeader("Content-Type", "application/json");            
- 
-   int httpResponseCode = http.GET();   
-
-   if(httpResponseCode > 0){
-     Serial.println("Write data to ThingSpeak...");
-     String response = http.getString();   
-
-     char responseText[50];
-     sprintf(responseText, "Response Code: %d\n", httpResponseCode);
-     Serial.print(responseText);
-
-     // if code is used to get Data uncomment this
-     //decodeJson(response);
+  if(WiFi.status()== WL_CONNECTED){
+    client.connect("xxxxxx", 80);
+    http.begin(client,url);    
+    http.GET();
+    Serial.println(url);
+    http.end();
  
    }else{
       Serial.print("Error on sending PUT Request: ");
-      Serial.println(httpResponseCode);
    }
-   http.end();
- 
- }else{
-    Serial.println("Error in WiFi connection");
- }
 }
+
 
 int getEmotion() {
   String rightPos = getMPUAccelerationRight();
@@ -132,7 +114,7 @@ int getEmotion() {
   
   return armPosition;
   Serial.println("");
-  delay(1000);
+  //delay(1000);
 }
 
 String getMPUAccelerationRight() {
@@ -183,7 +165,6 @@ String getMPUAccelerationRight() {
     }
   }
   return armRight;
-  delay(1000);
 }
 
 String getMPUAccelerationLeft() {
@@ -234,5 +215,4 @@ String getMPUAccelerationLeft() {
     }
   }
   return armLeft;
-  delay(1000);
 }

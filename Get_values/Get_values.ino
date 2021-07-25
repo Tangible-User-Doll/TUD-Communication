@@ -22,12 +22,6 @@ unsigned long timePressLimit;
 const char* ssid     = "xxxxxx";
 const char* password = "xxxxxx";
 
-// the ThinkSpeak key and channel to read your own chanel
-const char* apiKeyReadOwn = "xxxxxx";
-const char* apiChannelFeedOwn = "xxxxxx";
-
-// the key to send data to ThingSpeak
-const char* apiKeyWrite = "xxxxxx";
 
 // just for one LED, the others depend on the hardware connection
 int red_light_pin_1 = 1 ;
@@ -46,8 +40,13 @@ int posInt_1;
 int posInt_2;
 int posInt_3;
 
+int lastPos;
+
+bool user2Responding = false;
+bool user3Responding = false;
+
 HTTPClient http;
-WiFiClientSecure client;
+WiFiClient client;
 
 const char* pos_user_1; 
 const char* pos_user_2; 
@@ -68,7 +67,7 @@ void setup() {
     Serial.println("Connecting to WiFi..");
   }
   
-  client.setInsecure();
+  //client.setInsecure();
 
   Serial.println("WiFi is connected...");
 
@@ -94,52 +93,44 @@ void setup() {
   setColorOwn(0,0,0);
   setColorUserTwo(0,0,0);
   setColorUserThree(0,0,0);
-  display.display();
+
+  lastPos = 0;
 }
  
 void loop() {
   // create an url string which is sent to thinkspeak
   char urlRead[100];
-  sprintf(urlRead, "https://api.thingspeak.com/channels/%s/feeds.json?api_key=%s&results=1", apiChannelFeedOwn, apiKeyReadOwn);
+  sprintf(urlRead, "xxxxxx/color");
   readRGBValues(urlRead);
   touchSensor();
+
+  delay(1000);
 }
 
 void decodeJson(String response){
   
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, response);
+
+  posInt_1 = doc["p1"];
+  posInt_2 = doc["p2"];
+  posInt_3 = doc["p3"];
+
+  user2Responding = doc["m1"];
+  user3Responding = doc["m2"];
+
+  if(posInt_3 != 0) {
+    lastPos = posInt_3;
+  }
   
-  if(doc["feeds"][0]["field1"]){
-    pos_user_1 = doc["feeds"][0]["field1"];
-    posInt_1 = atoi(pos_user_1);
-  }
-  else{
-  }
-
-  if(doc["feeds"][0]["field2"]){
-    pos_user_2 = doc["feeds"][0]["field2"];
-    posInt_2 = atoi(pos_user_2);
-  }
-  else{
-  }
-
-  if(doc["feeds"][0]["field3"]){
-    pos_user_3 = doc["feeds"][0]["field3"];
-    posInt_3 = atoi(pos_user_3);
-  }
-  else{
-  }
-
   delay(500);
-  setColorOwn(0, 0, 0);
   switchUserColorsByPosition(posInt_1, 1);
   delay(500);
-  setColorUserTwo(0,0,0);
   switchUserColorsByPosition(posInt_2, 2);
   delay(500);
-  setColorUserThree(0,0,0);
   switchUserColorsByPosition(posInt_3, 3);
+
+  checkForResponses();
   
 }
 
@@ -148,7 +139,7 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 1){
     switch (pos) {
     case 0:
-      setColorOwn(100, 100, 75);        // white (neutral)
+      //setColorOwn(100, 100, 75);        // white (neutral)
       break;
     case 1:
       setColorOwn(0, 255, 0);           // green (joy, happiness)
@@ -171,7 +162,7 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 2){
     switch (pos) {
     case 0:
-      setColorUserTwo(100, 100, 75);    // white (neutral)
+     //setColorUserTwo(100, 100, 75);    // white (neutral)
       break;
     case 1:
       setColorUserTwo(0, 255, 0);       // green (joy, happiness)
@@ -194,7 +185,7 @@ void switchUserColorsByPosition(int pos, int user){
   if(user == 3){
     switch (pos) {
     case 0:
-      setColorUserThree(100, 100, 75);  // white (neutral)
+      //setColorUserThree(100, 100, 75);  // white (neutral)
       break;
     case 1:
       setColorUserThree(0, 255, 0);     // green (joy, happiness)
@@ -218,24 +209,18 @@ void switchUserColorsByPosition(int pos, int user){
 void readRGBValues(String url){
 
  if(WiFi.status()== WL_CONNECTED){
+  client.connect("xxxxxx", 80);
+  // Send request
+  http.begin(client,url);
+  int httpResponseCode = http.GET();
+  Serial.println(httpResponseCode);
+  Serial.println(url);
   
-   http.begin(client, url);
-   http.addHeader("Content-Type", "application/json");            
- 
-   int httpResponseCode = http.GET();   
-
-   if(httpResponseCode>0){
-     String response = http.getString();   
-
-     char responseText[50];
-     sprintf(responseText, "Response Code: %d\n", httpResponseCode);
-
-     
-     decodeJson(response);
- 
-   }else{
-   }
-   http.end();
+  // Print the response
+  decodeJson(http.getString());
+  
+  // Disconnect
+  http.end();
  
 }else{
  }
@@ -267,40 +252,105 @@ void touchSensor(){
 
   if(touch_lastState == LOW && touch_currentState == HIGH){
     char urlWrite[100];
-    sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field4=%d", apiKeyWrite, 1);
+    sprintf(urlWrite, "xxxxxx/changeColor?m3=%d", 1);
     sendTextValue(urlWrite);
 
-    timePressLimit = millis() + 30000;    
-  }
-
-  if(timePressLimit > 0 && millis() < timePressLimit){
-    char urlWrite[100];
-    sprintf(urlWrite, "https://api.thingspeak.com/update.json?api_key=%s&field4=%d", apiKeyWrite, 0);
-    sendTextValue(urlWrite);
+    showMessage("Ich: " , "Reaktion gesendet!");
+    
+    char urlReset[100];
+    sprintf(urlReset, "xxxxxx/changeColor?m3=%d", 0);
+    sendTextValue(urlReset);
   }
 
   touch_lastState = touch_currentState;
 }
 
+void checkForResponses() {
+  String sender = "Someone: ";
+  String message = "hi :>";
+  
+
+
+  if(user2Responding) {
+    sender = "Michel: ";
+    message = getResponseMessage(lastPos);
+    showMessage(sender, message);
+    
+  }
+  if(user3Responding) {
+    sender = "Alissa: ";
+    message = getResponseMessage(lastPos);
+    showMessage(sender, message);
+  }
+  
+}
+void showMessage(String sender, String message) {
+
+  display.clearDisplay();
+  
+  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+  display.setTextWrap(false);
+  display.setTextSize(2);
+  
+  display.setCursor(4, 4);
+  display.print(sender);
+  
+  display.setTextSize(3);
+  
+  int messageLength = message.length() * 18;
+  
+  for(int i = SCREEN_WIDTH; i > -messageLength; i-= 2){
+    display.setCursor(i, 32);
+    display.print(message);
+    display.display();
+  }
+  
+  delay(1000);
+
+  Serial.println("scrolling message finished!");
+  
+  display.clearDisplay();
+  display.display();
+  
+}
+
+String getResponseMessage(int state) {
+
+ switch (state) {
+    case 0: 
+      return "Hi!";
+      break;
+    case 1:
+      return "Yay!";             // green (joy, happiness)
+      break;
+    case 2:
+      return "Du schaffst das!";           // yellow (stress)
+      break;
+    case 3:
+      return "Weiter so!";           // cyan (concentration)
+      break;
+    case 4:
+      return "Das wird schon wieder!";            // blue (sadness)
+      break;
+    case 5:
+      return "Trink mal einen Tee.. :)";           // red (anger)
+      break;
+ }
+}
+
 void sendTextValue(String url){
 
  if(WiFi.status()== WL_CONNECTED){
+  client.connect("xxxxxx", 80);
+  // Send request
+  http.begin(client,url);
+  int httpResponseCode = http.GET();
   
-   http.begin(client, url);
-   http.addHeader("Content-Type", "application/json");            
+  // Disconnect
+  http.end();
  
-   int httpResponseCode = http.GET();   
-
-   if(httpResponseCode > 0){
-     String response = http.getString();   
-
-     char responseText[50];
-     sprintf(responseText, "Response Code: %d\n", httpResponseCode);
- 
-   }else{
-   }
-   http.end();
- 
- }else{
+}else{
  }
+
+ 
 }
