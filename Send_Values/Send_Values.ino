@@ -5,6 +5,7 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
+// change your wifi credentials here
 const char* ssid     = "xxxxxx";
 const char* password = "xxxxxx";
 
@@ -29,8 +30,9 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   
-  //client.setInsecure();
-
+  // only necesarry for thingspeak  
+  // client.setInsecure();
+  
   // Try to initialize first mpu!
   if (!mpu_right.begin(0x68)) {
     Serial.println("Failed to find MPU6050 chip at address 0x68");
@@ -64,13 +66,14 @@ void loop() {
   char urlRead[100];
 
   // getArmPosition() returns the current arm position based on the gyro values
-  
+  // Change the p3 to your user intpu e. g. if you are user 1 then change to p1
   sprintf(urlWrite, "xxxxxx/changeColor?p3=%d", getEmotion());
   writeRGBValues(urlWrite);
 
   //delay(1000);
 }
 
+// Change the xxx to the url from the docker container
 void writeRGBValues(String url){
 
   if(WiFi.status()== WL_CONNECTED){
