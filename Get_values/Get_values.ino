@@ -106,7 +106,7 @@ void loop() {
 
   delay(1000);
 }
-
+// Change m1 and m2 to the messages received from the other participants
 void decodeJson(String response){
   
   DynamicJsonDocument doc(1024);
@@ -247,6 +247,7 @@ void setColorUserThree(int red_light_value, int green_light_value, int blue_ligh
   analogWrite(blue_light_pin_3, blue_light_value);
 }
 
+// Change m3 to the messages that you send to others
 void touchSensor(){
   touch_currentState = digitalRead(sensor_pin);
 
@@ -270,7 +271,7 @@ void checkForResponses() {
   String message = "hi :>";
   
 
-
+// Change the names of your participants here
   if(user2Responding) {
     sender = "Michel: ";
     message = getResponseMessage(lastPos);
